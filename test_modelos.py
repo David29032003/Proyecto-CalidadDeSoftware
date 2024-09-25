@@ -1,7 +1,6 @@
 import unittest
-from unittest.mock import patch
-
-from modelos import CamaraSimulada
+from unittest.mock import patch, Mock
+from modelos import CamaraSimulada, PanelDeControl, ControladorCamara, ControladorVista
 
 
 class TestCamaraSimulada(unittest.TestCase):
@@ -60,9 +59,67 @@ class TestCamaraSimulada(unittest.TestCase):
             self.assertIn('movimientoDetectado', frame)
 
 
-    
+class TestCamaraSimulada(unittest.TestCase):
+    @patch('random.choice', side_effect=[False, False, False, False, False, False, False, False, False, False])
+    def test_perdida_conexion_con_camaras(self, mock_random_choice):
+        # Configuramos la cámara simulada
+        camara_simulada = CamaraSimulada(url="http://camara2", id="cam2", tipoCamara="tipo2", coordenadas=(15.0, 25.0))
+        controlador_vista = ControladorVista()
 
+        # Obtenemos los frames simulados (en este caso todas las cámaras estarán offline)
+        frames_simulados = camara_simulada.TransmitirImagenes()
 
+        # Establecemos los datos en el visor de la cámara
+        controlador_vista.establecerDatos(frames_simulados)
+
+        # Creamos un panel de control con una cámara y un visor
+        panel = PanelDeControl(
+            camaras=[ControladorCamara("http://camara2", "cam2", "tipo2", (15.0, 25.0))],
+            visoresPorCamara=[controlador_vista],
+            tamanoDisco="500GB"
+        )
+
+        # Validamos que el panel muestra la transmisión con todas las cámaras offline
+        panel.mostrarTransmisionDeCamara("cam2")
+
+        # Comprobamos que todos los frames tengan la cámara en estado offline
+        for frame in frames_simulados:
+            self.assertFalse(frame['camaraOnline'])
+
+    @patch('random.choice', side_effect=[False, False, True, True, False, False, True, True, False, False])
+    @patch.object(CamaraSimulada, 'eventoAparicionPersona',
+                  side_effect=[False, False, True, False, False, False, True, False, False, False])  # Mock eventoAparicionPersona
+    @patch.object(CamaraSimulada, 'eventoAparicionCoche',
+                  side_effect=[False, False, False, True, False, False, False, True, False, False])  # Mock eventoAparicionCoche
+    @patch.object(CamaraSimulada, 'eventoMovimiento',
+                  side_effect=[False, False, False, False, False, False, False, False, False, False])  # Mock eventoMovimiento
+    def test_reconexion_de_camaras_perdidas(self,mock_evento_persona, mock_evento_coche, mock_evento_movimiento, mock_random_choice):
+        # Configuramos la cámara simulada
+        camara_simulada = CamaraSimulada(url="http://camara3", id="cam3", tipoCamara="tipo3", coordenadas=(20.0, 30.0))
+        controlador_vista = ControladorVista()
+
+        # Obtenemos los frames simulados
+        frames_simulados = camara_simulada.TransmitirImagenes()
+
+        # Establecemos los datos en el visor de la cámara
+        controlador_vista.establecerDatos(frames_simulados)
+
+        # Creamos un panel de control con una cámara y un visor
+        panel = PanelDeControl(
+            camaras=[ControladorCamara("http://camara3", "cam3", "tipo3", (20.0, 30.0))],
+            visoresPorCamara=[controlador_vista],
+            tamanoDisco="500GB"
+        )
+
+        # Validamos que el panel muestra la transmisión con reconexiones
+        panel.mostrarTransmisionDeCamara("cam3")
+
+        # Comprobamos que los frames alternen entre offline y online
+        for i, frame in enumerate(frames_simulados):
+            if i % 4 < 2:  # Los primeros dos frames de cada bloque de 4 son offline
+                self.assertFalse(frame['camaraOnline'])
+            else:  # Los dos siguientes son online
+                self.assertTrue(frame['camaraOnline'])
 
 
 if __name__ == '__main__':

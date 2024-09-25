@@ -20,8 +20,8 @@ class CamaraSimulada:
                 'numeroFrame': str(i + 1),
                 'timestamp': f'2024-09-23 12:00:{10 + i}', # Simulo los tiempos
                 'datosImagen': f'datosFrame_{i + 1}', # Datos simulados
-                'personaDetectada': self.eventoAparicionPersona(estaOnline), # Verifico si el frame detecto a una persona
                 'camaraOnline': estaOnline, # Estado de la cámara
+                'personaDetectada': self.eventoAparicionPersona(estaOnline), # Verifico si el frame detecto a una persona
                 'cocheDetectado': self.eventoAparicionCoche(estaOnline), # Verifico si el frame detecto a un coche
                 'movimientoDetectado': self.eventoMovimiento(estaOnline) # Verifico si el frame detecto movimiento
             }
@@ -83,8 +83,8 @@ class PanelDeControl:
                 print(f"Mostrando transmisión de la cámara {camara.id} en el visor {i}:")
                 for frame in transmision:
                     print(f"Frame: {frame['numeroFrame']}, Timestamp: {frame['timestamp']}, Datos: {frame['datosImagen']}, "
-                          f"Persona detectada: {frame['personaDetectada']}, "
                           f"Cámara online: {frame['camaraOnline']}, "
+                          f"Persona detectada: {frame['personaDetectada']}, "
                           f"Coche detectado: {frame['cocheDetectado']}, "
                           f"Movimiento detectado: {frame['movimientoDetectado']}")
                 break

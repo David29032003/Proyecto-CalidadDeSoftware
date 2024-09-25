@@ -17,3 +17,4 @@ if __name__ == "__main__":
 
     # Muestro la transmisión de la camara
     panel_de_control.mostrarTransmisionDeCamara("7985462")
+
