@@ -3,7 +3,7 @@ from typing import List, Tuple, Dict
 import random
 
 class CamaraSimulada:
-    def __init__(self, url: str, id: str, tipoCamara: str, coordenadas: Tuple[float, float]):
+    def __init__(self, url: str, id:    str, tipoCamara: str, coordenadas: Tuple[float, float]):
         self.url = url
         self.id = id
         self.tipo = tipoCamara
@@ -13,20 +13,19 @@ class CamaraSimulada:
     def TransmitirImagenes(self) -> List[Dict[str, str]]:
         imagenesSimuladas = []
         # Simulo 10 frames de imágenes como ejemplo
-        for i in range(10):
-            estaOnline = self.estaOnline()  # Verifico si la cámara está activa
-            
-            frame = {
-                'numeroFrame': str(i + 1),
-                'timestamp': f'2024-09-23 12:00:{10 + i}', # Simulo los tiempos
-                'datosImagen': f'datosFrame_{i + 1}', # Datos simulados
-                'camaraOnline': estaOnline, # Estado de la cámara
-                'personaDetectada': self.eventoAparicionPersona(estaOnline), # Verifico si el frame detecto a una persona
-                'cocheDetectado': self.eventoAparicionCoche(estaOnline), # Verifico si el frame detecto a un coche
-                'movimientoDetectado': self.eventoMovimiento(estaOnline) # Verifico si el frame detecto movimiento
-            }
-            imagenesSimuladas.append(frame)
-        return imagenesSimuladas
+        #for i in range(10):
+        estaOnline = self.estaOnline()  # Verifico si la cámara está activa
+
+        frame = {
+            'timestamp': f'2024-09-23 12:00', # Simulo los tiempos
+            'datosImagen': f'datosFrame_{random.randint(0, 10)}', # Datos simulados
+            'camaraOnline': estaOnline, # Estado de la cámara
+            'personaDetectada': self.eventoAparicionPersona(estaOnline), # Verifico si el frame detecto a una persona
+            'cocheDetectado': self.eventoAparicionCoche(estaOnline), # Verifico si el frame detecto a un coche
+            'movimientoDetectado': self.eventoMovimiento(estaOnline) # Verifico si el frame detecto movimiento
+        }
+
+        return frame
 
     def eventoAparicionPersona(self, estaOnline: bool) -> bool:
         # Verifico si la camara estaba online 
