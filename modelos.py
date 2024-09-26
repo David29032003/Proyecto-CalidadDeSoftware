@@ -20,8 +20,8 @@ class CamaraSimulada:
                 'numeroFrame': str(i + 1),
                 'timestamp': f'2024-09-23 12:00:{10 + i}', # Simulo los tiempos
                 'datosImagen': f'datosFrame_{i + 1}', # Datos simulados
-                'personaDetectada': self.eventoAparicionPersona(estaOnline), # Verifico si el frame detecto a una persona
                 'camaraOnline': estaOnline, # Estado de la cámara
+                'personaDetectada': self.eventoAparicionPersona(estaOnline), # Verifico si el frame detecto a una persona
                 'cocheDetectado': self.eventoAparicionCoche(estaOnline), # Verifico si el frame detecto a un coche
                 'movimientoDetectado': self.eventoMovimiento(estaOnline) # Verifico si el frame detecto movimiento
             }
@@ -83,27 +83,11 @@ class PanelDeControl:
                 print(f"Mostrando transmisión de la cámara {camara.id} en el visor {i}:")
                 for frame in transmision:
                     print(f"Frame: {frame['numeroFrame']}, Timestamp: {frame['timestamp']}, Datos: {frame['datosImagen']}, "
-                          f"Persona detectada: {frame['personaDetectada']}, "
                           f"Cámara online: {frame['camaraOnline']}, "
+                          f"Persona detectada: {frame['personaDetectada']}, "
                           f"Coche detectado: {frame['cocheDetectado']}, "
                           f"Movimiento detectado: {frame['movimientoDetectado']}")
                 break
 
 
-if __name__ == "__main__":
-    # Realizo una instancia para simular una camara
-    camaraSimulada = CamaraSimulada("rtsp://ejemplo.com/canal/1", "7985462", "VisionNocturna", (24.434, 33.339))
-    datosTransmision = camaraSimulada.TransmitirImagenes()
 
-    # Creo un objeto de la clase ControladorVista
-    controlador_vista = ControladorVista()
-    controlador_vista.establecerDatos(datosTransmision)
-
-    # Realizo una instancia para el controlador de la camara
-    controlador_camara = ControladorCamara("rtsp://ejemplo.com/canal/1", "7985462", "VisionNocturna", (24.434, 33.339))
-
-    # Realizo una instancia para el panel de control
-    panel_de_control = PanelDeControl([controlador_camara], [controlador_vista], "5Tb")
-
-    # Muestro la transmisión de la camara
-    panel_de_control.mostrarTransmisionDeCamara("7985462")
