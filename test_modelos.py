@@ -59,7 +59,7 @@ class TestCamaraSimulada(unittest.TestCase):
             self.assertIn('movimientoDetectado', frame)
 
 
-class TestCamaraSimulada(unittest.TestCase):
+class TestCamarasSimuladas(unittest.TestCase):
     @patch('random.choice', side_effect=[False, False, False, False, False, False, False, False, False, False])
     def test_perdida_conexion_con_camaras(self, mock_random_choice):
         # Configuramos la cámara simulada
@@ -86,14 +86,15 @@ class TestCamaraSimulada(unittest.TestCase):
         for frame in frames_simulados:
             self.assertFalse(frame['camaraOnline'])
 
-    @patch('random.choice', side_effect=[False, False, True, True, False, False, True, True, False, False])
-    @patch.object(CamaraSimulada, 'eventoAparicionPersona',
-                  side_effect=[False, False, True, False, False, False, True, False, False, False])  # Mock eventoAparicionPersona
-    @patch.object(CamaraSimulada, 'eventoAparicionCoche',
-                  side_effect=[False, False, False, True, False, False, False, True, False, False])  # Mock eventoAparicionCoche
-    @patch.object(CamaraSimulada, 'eventoMovimiento',
-                  side_effect=[False, False, False, False, False, False, False, False, False, False])  # Mock eventoMovimiento
-    def test_reconexion_de_camaras_perdidas(self,mock_evento_persona, mock_evento_coche, mock_evento_movimiento, mock_random_choice):
+    # @patch('random.choice', side_effect=[False, False, True, True, False, False, True, True, False, False])
+    # @patch.object(CamaraSimulada, 'eventoAparicionPersona',
+    #               side_effect=[False, False, True, False, False, False, True, False, False, False])  # Mock eventoAparicionPersona
+    # @patch.object(CamaraSimulada, 'eventoAparicionCoche',
+    #               side_effect=[False, False, False, True, False, False, False, True, False, False])  # Mock eventoAparicionCoche
+    # @patch.object(CamaraSimulada, 'eventoMovimiento',
+    #               side_effect=[False, False, False, False, False, False, False, False, False, False])  # Mock eventoMovimiento
+    @patch.object(CamaraSimulada, 'estaOnline', side_effect=[False, False, True, True, False, False, True, True, False, False])  # Mock estaOnline (cada vez que se llame a este método devuelve [True, True, True, True, True, True, T, True, True, True])
+    def test_reconexion_de_camaras_perdidas(self,mock_estaOnline):
         # Configuramos la cámara simulada
         camara_simulada = CamaraSimulada(url="http://camara3", id="cam3", tipoCamara="tipo3", coordenadas=(20.0, 30.0))
         controlador_vista = ControladorVista()
