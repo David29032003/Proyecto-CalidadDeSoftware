@@ -60,7 +60,7 @@ class TestCamaraSimulada(unittest.TestCase):
 
 
 class TestCamarasSimuladas(unittest.TestCase):
-    @patch('random.choice', side_effect=[False, False, False, False, False, False, False, False, False, False])
+    @patch('random.choice', side_effect=[False] * 10)
     def test_perdida_conexion_con_camaras(self, mock_random_choice):
         # Configuramos la cámara simulada
         camara_simulada = CamaraSimulada(url="http://camara2", id="cam2", tipoCamara="tipo2", coordenadas=(15.0, 25.0))
@@ -93,8 +93,8 @@ class TestCamarasSimuladas(unittest.TestCase):
     #               side_effect=[False, False, False, True, False, False, False, True, False, False])  # Mock eventoAparicionCoche
     # @patch.object(CamaraSimulada, 'eventoMovimiento',
     #               side_effect=[False, False, False, False, False, False, False, False, False, False])  # Mock eventoMovimiento
-    @patch.object(CamaraSimulada, 'estaOnline', side_effect=[False, False, True, True, False, False, True, True, False, False])  # Mock estaOnline (cada vez que se llame a este método devuelve [True, True, True, True, True, True, T, True, True, True])
-    def test_reconexion_de_camaras_perdidas(self,mock_estaOnline):
+    @patch.object(CamaraSimulada, 'estaOnline', side_effect=[False, False, True, True, False, False, True, True, False, False])  # Mock estaOnline (cada vez que se llame a este método devuelve sideeffect)
+    def test_reconexion_de_camaras_perdidas(self,mock_esta_online):
         # Configuramos la cámara simulada
         camara_simulada = CamaraSimulada(url="http://camara3", id="cam3", tipoCamara="tipo3", coordenadas=(20.0, 30.0))
         controlador_vista = ControladorVista()
@@ -121,6 +121,39 @@ class TestCamarasSimuladas(unittest.TestCase):
                 self.assertFalse(frame['camaraOnline'])
             else:  # Los dos siguientes son online
                 self.assertTrue(frame['camaraOnline'])
+
+    @patch.object(CamaraSimulada, 'estaOnline', side_effect=[True] * 10)  # Mock estaOnline (siempre online)
+    @patch.object(CamaraSimulada, 'eventoAparicionPersona', side_effect=[True if i % 2 == 0 else False for i in range(10)])  # True en frames impares
+    def test_detecion_persona_en_frames_impares(self, mock_evento_persona, mock_esta_online):
+        # Configuramos la cámara simulada
+        camara_simulada = CamaraSimulada(url="http://camara3", id="cam3", tipoCamara="tipo3",
+                                         coordenadas=(20.0, 30.0))
+        controlador_vista = ControladorVista()
+
+        # Obtenemos los frames simulados
+        frames_simulados = camara_simulada.TransmitirImagenes()
+
+        # Establecemos los datos en el visor de la cámara
+        controlador_vista.establecerDatos(frames_simulados)
+
+        # Creamos un panel de control con una cámara y un visor
+        panel = PanelDeControl(
+            camaras=[ControladorCamara("http://camara3", "cam3", "tipo3", (20.0, 30.0))],
+            visoresPorCamara=[controlador_vista],
+            tamanoDisco="500GB"
+        )
+
+        # Validamos que el panel muestra la transmisión con reconexiones
+        panel.mostrarTransmisionDeCamara("cam3")
+
+        # Verificamos si en los frames impares se detectó a una persona
+        for i, frame in enumerate(frames_simulados):
+            if i % 2 != 0:  # Frames pares
+                self.assertFalse(frame['personaDetectada'],
+                                 f"Se detectó una persona en el frame {i + 1}, que es un frame impar.")
+            else:  # Frames impares
+                self.assertTrue(frame['personaDetectada'],
+                                f"No se detectó una persona en el frame {i + 1}, que es un frame par.")
 
 
 if __name__ == '__main__':
